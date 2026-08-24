@@ -1,0 +1,50 @@
+[package]
+name = "fxlfit"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT"
+description = "Preflight fixed-layout EPUB comics and picture books: layout and viewport sanity, image budgets, and EPUB Accessibility 1.1 / EAA discovery metadata, with CI exit codes. Offline Rust CLI."
+authors = ["printemps.tokyo <develop@printemps.tokyo>"]
+repository = "https://github.com/printemps-tokyo/fxlfit"
+homepage = "https://github.com/printemps-tokyo/fxlfit"
+readme = "README.md"
+keywords = ["epub", "comics", "accessibility", "publishing", "cli"]
+categories = ["command-line-utilities", "accessibility", "text-processing"]
+
+[[bin]]
+name = "fxlfit"
+path = "src/main.rs"
+
+[lib]
+name = "fxlfit"
+path = "src/lib.rs"
+
+[dependencies]
+# Error context for the thin binary layer (org convention).
+anyhow = "1"
+# Argument parsing (derive API, org convention).
+clap = { version = "4", features = ["derive"] }
+# The EPUB container is a ZIP. default-features are off so no encryption,
+# bzip2, zstd, xz or ppmd backend is compiled in: an EPUB only ever uses
+# stored and deflated entries. The deflate backend is the pure-Rust one, so
+# the build needs no system zlib.
+zip = { version = "8", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+# Package document, navigation document and XHTML content documents are XML.
+# A pull parser is used rather than a DOM: the checks only ever need element
+# names, attributes and text, and the reader must not choke on an EPUB that is
+# already malformed -- that is one of the things being reported.
+quick-xml = "0.42"
+
+[dev-dependencies]
+# Scratch directories for the CLI integration tests.
+tempfile = "3"
+# The tests build their EPUBs the same way a production one is built: as a
+# real ZIP container, in code, so the suite carries no binary fixtures.
+zip = { version = "8", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"
