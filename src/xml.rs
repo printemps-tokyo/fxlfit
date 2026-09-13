@@ -91,16 +91,21 @@ fn decode_utf8(bytes: &[u8]) -> (String, Option<String>) {
 }
 
 fn decode_utf16(bytes: &[u8], little_endian: bool) -> String {
-    let units: Vec<u16> = bytes
-        .chunks_exact(2)
-        .map(|c| {
-            if little_endian {
-                u16::from_le_bytes([c[0], c[1]])
-            } else {
-                u16::from_be_bytes([c[0], c[1]])
-            }
-        })
-        .collect();
+    // Pairs are taken by index rather than through `chunks_exact`, which
+    // newer clippy asks to be written as `as_chunks` -- an API too recent to
+    // rely on here. A trailing odd byte is dropped, as it cannot start a
+    // code unit.
+    let mut units: Vec<u16> = Vec::with_capacity(bytes.len() / 2);
+    let mut i = 0;
+    while i + 1 < bytes.len() {
+        let pair = [bytes[i], bytes[i + 1]];
+        units.push(if little_endian {
+            u16::from_le_bytes(pair)
+        } else {
+            u16::from_be_bytes(pair)
+        });
+        i += 2;
+    }
     String::from_utf16_lossy(&units)
 }
 
