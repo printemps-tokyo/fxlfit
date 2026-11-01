@@ -29,7 +29,7 @@ clap = { version = "4", features = ["derive"] }
 # bzip2, zstd, xz or ppmd backend is compiled in: an EPUB only ever uses
 # stored and deflated entries. The deflate backend is the pure-Rust one, so
 # the build needs no system zlib.
-zip = { version = "8", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 # Package document, navigation document and XHTML content documents are XML.
 # A pull parser is used rather than a DOM: the checks only ever need element
 # names, attributes and text, and the reader must not choke on an EPUB that is
@@ -41,7 +41,7 @@ quick-xml = "0.42"
 tempfile = "3"
 # The tests build their EPUBs the same way a production one is built: as a
 # real ZIP container, in code, so the suite carries no binary fixtures.
-zip = { version = "8", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 
 [profile.release]
 strip = true
