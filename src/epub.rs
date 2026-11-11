@@ -44,7 +44,10 @@ pub fn read(path: &Path) -> Result<Book> {
         if entry.is_dir() {
             continue;
         }
-        let name = entry.name().to_string();
+        let name = entry
+            .name()
+            .map_err(|e| anyhow!("cannot read the name of entry {i}: {e}"))?
+            .to_string();
         let bytes = entry.size();
         total_bytes += bytes;
         resources.insert(
@@ -222,7 +225,8 @@ fn read_entry<R: Read + std::io::Seek>(
             let mut found = None;
             for i in 0..archive.len() {
                 let entry = archive.by_index(i).ok()?;
-                if entry.name().to_ascii_lowercase() == lower {
+                // An entry whose name cannot be decoded cannot be the one asked for.
+                if entry.name().is_ok_and(|n| n.to_ascii_lowercase() == lower) {
                     found = Some(i);
                     break;
                 }
