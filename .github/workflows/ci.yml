@@ -30,3 +30,12 @@ jobs:
       - run: cargo build --release
       # Smoke test: the check catalogue has to render without a book.
       - run: ./target/release/fxlfit --list-checks --no-color
+
+  # The oldest Rust this crate promises to build with (rust-version in
+  # Cargo.toml). A dependency update that needs a newer one fails here.
+  msrv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@1.88
+      - run: cargo test --locked --all
